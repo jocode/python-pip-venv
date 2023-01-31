@@ -89,3 +89,117 @@ Para poder crearnos un ambiente virtual, debemos tener instalado el paquete virt
 Para ejecutar el servidor, debemos ejecutar el siguiente comando:
 
 - `uvicorn main:app --reload`
+
+
+## ¿Qué es Docker?
+
+Docker es una plataforma de código abierto que permite crear, probar e implementar aplicaciones rápidamente. Docker usa contenedores para permitir que las aplicaciones se ejecuten rápidamente en cualquier entorno, sin importar si es en un servidor, una máquina virtual o en la nube.
+
+Puede ocurrer que en algunos ambientes se use diferentes versiones de Python. Por ejemplo, en un entorno de desarrollo, se puede usar Python 3.8, mientras que en un entorno de producción, se puede usar Python 3.6. Para evitar este problema, se puede usar Docker para crear un contenedor con Python 3.8, y luego ejecutar el código en el contenedor.
+
+[Instalación de Docker](https://platzi.com/clases/4261-python-pip/55136-instalacion-de-docker/)
+[Video instalación de Docker en WSL](https://www.youtube.com/watch?v=ZO4KWQfUBBc)
+
+Luego que se instala Docker, se debe crear una imagen de Docker. Una imagen de Docker es un archivo de solo lectura que contiene un sistema de archivos, junto con algunos metadatos. Una imagen de Docker se puede usar para crear contenedores. Un contenedor es una instancia de ejecución de una imagen de Docker.
+
+- Crear un archivo `Dockerfile` en la raíz del proyecto
+
+```dockerfile	
+FROM python:3.8
+
+WORKDIR /app
+COPY requirements.txt /app/requirements.txt
+
+RUN pip install --no-cache-dir --upgrade  -r /app/requirements.txt
+COPY . /app
+
+CMD bash -c "while true; do sleep 1; done"
+```
+
+Para correr el contenedor, se debe crear un archivo `docker-compose.yml` en la raíz del proyecto
+
+```yml
+services:
+    app:
+        build:
+        context: .
+        dockerfile: Dockerfile
+```
+
+- `docker-compose build` Crear el contenedor
+- `docker-compose up -d` Lanzar el contenedor
+- `docker-compose ps` Ver los contenedores y el estado
+- `docker-compose exec app bash` Entrar al contenedor
+- `exit` Salir del contenedor
+
+- `docker-compose down` Detener el contenedor
+- `docker-compose up -d --build` Re-construir el contenedor
+- `docker-compose exec app bash` Entrar al contenedor
+- `pyhton main.py` Ejecutar el programa
+
+En este punto, es como si se estuviera conectando a un servidor remoto.
+
+- `python main.py` Ejecutar el programa
+
+
+### ¿Por qué es importante usar docker?
+
+- **Docker es una herramienta que nos permite crear contenedores**. Un contenedor es un entorno aislado que nos permite ejecutar aplicaciones de forma segura y confiable. Los contenedores nos permiten ejecutar aplicaciones en cualquier sistema operativo, sin importar si es Linux, Windows o Mac.
+Se aisla todo el sistema, incluyendo el lenguaje de programación, las librerías, el sistema operativo, etc. Esto nos permite tener un entorno de desarrollo y producción idénticos.
+
+
+## Docker para el día a día: auutomatizando la vinculación de archivos
+
+Esto permite tener una experiencia de desarrollo similar a la de un entorno de producción, y lo que nos permite la vinculación de archivos es que podamos modificar el código en nuestro editor de texto favorito, y que los cambios se reflejen en el contenedor.
+
+Para poder vincular archivos, debemos agregar la etiqueta **`volumes`** en el archivo `docker-compose.yml`
+
+```yml
+services:
+    app:
+        build:
+        context: .
+        dockerfile: Dockerfile
+        volumes:
+        - .:/app
+```
+
+- `docker-compose up -d` Recargar el contenedor
+
+
+## Dockerizando nuestra API
+
+Para poder dockerizar nuestra API, debemos crear un archivo `Dockerfile` en la raíz del proyecto
+
+```dockerfile
+FROM python:3.8
+
+WORKDIR /app
+COPY requirements.txt /app/requirements.txt
+
+RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
+
+COPY . /app
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
+```
+
+Y crear un archivo `docker-compose.yml` en la raíz del proyecto
+
+```yml
+services:
+  fastapi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+    ports:
+      - "80:80"
+```
+
+Debemos estar en la carpeta raíz del proyecto, y ejecutar los siguientes comandos:
+
+- `docker-compose build` Crear el contenedor
+- `docker-compose up -d` Lanzar el contenedor
+- `docker-compose ps` Ver los contenedores y el estado
