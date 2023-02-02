@@ -24,6 +24,15 @@ Como se esta usando WSL, y se va a usar VSCode, es necesario instalar el plugin 
 
 - `mkdir folder-name` Permite crear una carpeta
 
+
+> :warning: En algunos casos WSL puede fallar al intentar abrirlo y le muestra un error como este:
+> `The service cannot be started`
+> Para solucionar este problema, se debe ejecutar el siguiente comando en CMD como administrador:
+> **`sc config LxssManager start=auto`**
+
+:warning: El problema es generado por Kaspersky.
+Kaspersky le mostrará una ventana emergente sobre un hilo potencial. Dígale a Kaspersky que ignore la alerta. No haga clic en el botón "Repararlo" de Kaspersky o deshará la solución.
+
 ## Qué es PIP
 
 PIP es un sistema de gestión de paquetes usado para instalar y administrar paquetes de software escritos en Python. Muchos paquetes pueden ser encontrados en el índice de paquetes de Python.
